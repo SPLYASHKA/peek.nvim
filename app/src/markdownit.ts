@@ -8,6 +8,7 @@ import { default as MarkdownItFootnote } from 'https://esm.sh/markdown-it-footno
 import { default as MarkdownItTaskLists } from 'https://esm.sh/markdown-it-task-lists@2.1.1';
 import { default as MarkdownItTexmath } from 'https://esm.sh/markdown-it-texmath@1.0.0';
 import Katex from 'https://esm.sh/katex@0.16.9';
+import pdfCrop from './markdownItPdfCrop.ts';
 
 const __args = parseArgs(Deno.args);
 
@@ -38,7 +39,8 @@ const md = new MarkdownIt('default', {
       strict: false,
       throwOnError: false,
     },
-  });
+  })
+  .use(pdfCrop);
 
 md.renderer.rules.link_open = (tokens, idx, options) => {
   const token = tokens[idx];
