@@ -9,6 +9,7 @@ local config = {
   throttle_at = 200000,
   throttle_time = 'auto',
   app = 'webview',
+  pdf_map = nil,
   filetype = { 'markdown' },
 }
 
@@ -67,6 +68,7 @@ function module.setup(incoming)
     throttle_at = { incoming.throttle_at, 'number', true },
     throttle_time = { incoming.throttle_time, optional(one_of({ 'auto', of_type('number') })), '"auto" or number' },
     app = { incoming.app, optional(one_of({ of_type('string'), every(of_type('string')) })), 'string or string[]' },
+    pdf_map = { incoming.pdf_map, optional(of_type('string')), 'string or nil' },
     filetype = { incoming.filetype, optional(every(of_type('string'))), 'string[]' },
   })
 

@@ -136,6 +136,9 @@ addEventListener('DOMContentLoaded', () => {
       case 'base':
         base.href = data.base;
         break;
+      case 'pdf_map':
+        setPdfMap(data.map);
+        break;
       default:
         break;
     }

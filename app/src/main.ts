@@ -24,6 +24,15 @@ async function init(socket: WebSocket) {
   const encoder = new TextEncoder();
   const decoder = new TextDecoder();
 
+  if (__args['pdf-map']) {
+    try {
+      const map = JSON.parse(Deno.readTextFileSync(__args['pdf-map']));
+      socket.send(encoder.encode(JSON.stringify({ action: 'pdf_map', map })));
+    } catch (e) {
+      logger.error('Failed to load pdf-map:', e.message);
+    }
+  }
+
   const generator = readChunks(Deno.stdin);
 
   try {

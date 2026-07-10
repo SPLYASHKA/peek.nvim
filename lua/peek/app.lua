@@ -37,6 +37,10 @@ function module.setup()
     table.insert(args, '--syntax')
   end
 
+  if config.get('pdf_map') then
+    table.insert(args, '--pdf-map=' .. config.get('pdf_map'))
+  end
+
   cmd = vim.list_extend({
     'deno',
     'task',
