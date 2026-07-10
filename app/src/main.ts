@@ -68,6 +68,7 @@ async function init(socket: WebSocket) {
 
 (() => {
   const app = __args['app'] ? JSON.parse(__args['app']) : 'webview';
+  const useAppDirect = __args['app_direct'] === 'true';
 
   if (app === 'webview') {
     const onListen: Deno.ServeOptions['onListen'] = ({ hostname, port }) => {
@@ -128,6 +129,14 @@ async function init(socket: WebSocket) {
     const url = new URL(`http://${serverUrl}`);
     const searchParams = new URLSearchParams({ theme: __args.theme });
     url.search = searchParams.toString();
+
+    if (useAppDirect) {
+      const cmdArray = Array.isArray(app) ? app.concat(url.href) : [app, url.href];
+
+      new Deno.Command(cmdArray[0], { args: cmdArray.slice(1) }).spawn();
+
+      return;
+    }
 
     open(url.href, { app: app !== 'browser' && app })
       .catch((e) => {
