@@ -4,6 +4,8 @@ import { slidingWindows } from 'https://deno.land/std@0.217.0/collections/slidin
 import morphdom from 'https://esm.sh/morphdom@2.7.2?no-dts';
 import mermaid from './mermaid.ts';
 
+import { getPdfMorphdomOptions, initPdfRenderer, setPdfMap } from './pdf-renderer.ts';
+
 const window = globalThis;
 // const _log = Reflect.get(window, '_log');
 
@@ -141,6 +143,7 @@ addEventListener('DOMContentLoaded', () => {
 
   const onPreview = (() => {
     mermaid.init();
+    initPdfRenderer(); // TODO: mb в onPreview
 
     const renderMermaid = debounce(
       (() => {
@@ -172,10 +175,15 @@ addEventListener('DOMContentLoaded', () => {
       200,
     );
 
+    const pdfMorphdomOptions = getPdfMorphdomOptions();
+
     const morphdomOptions: Parameters<typeof morphdom>[2] = {
       childrenOnly: true,
       getNodeKey: (node) => {
         if (node instanceof HTMLElement && node.getAttribute('data-graph') === 'mermaid') {
+          return node.id;
+        }
+        if (node instanceof HTMLElement && node.classList.contains('pdf-crop')) {
           return node.id;
         }
         return null;
@@ -183,6 +191,9 @@ addEventListener('DOMContentLoaded', () => {
       onNodeAdded: (node) => {
         if (node instanceof HTMLElement && node.getAttribute('data-graph') === 'mermaid') {
           renderMermaid();
+        }
+        if (pdfMorphdomOptions.onNodeAdded) {
+          pdfMorphdomOptions.onNodeAdded(node);
         }
         return node;
       },
@@ -195,10 +206,27 @@ addEventListener('DOMContentLoaded', () => {
         ) {
           toEl.style.height = fromEl.style.height;
         }
+        if (fromEl.classList.contains('pdf-crop') && fromEl.dataset.rendered === 'true') {
+          const sameParams = fromEl.dataset.pdfUrl === toEl.dataset.pdfUrl &&
+            fromEl.dataset.pageNum === toEl.dataset.pageNum &&
+            fromEl.dataset.rect === toEl.dataset.rect;
+
+          if (sameParams) {
+            return false; // Элемент не изменился, не обновляем
+          }
+        }
         return !fromEl.isEqualNode(toEl);
       },
-      onBeforeElChildrenUpdated(_, toEl) {
-        return toEl.getAttribute('data-graph') !== 'mermaid';
+      onBeforeElChildrenUpdated(fromEl, toEl) {
+        if (toEl.getAttribute('data-graph') === 'mermaid') {
+          return false;
+        }
+        // ← Добавьте этот блок для PDF
+        if (pdfMorphdomOptions.onBeforeElChildrenUpdated) {
+          const result = pdfMorphdomOptions.onBeforeElChildrenUpdated(fromEl, toEl);
+          if (result === false) return false;
+        }
+        return true;
       },
     };
 

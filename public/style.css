@@ -176,3 +176,44 @@ div[data-graph='mermaid']:has(> .peek-loader) {
   color: var(--color-prettylights-syntax-markup-deleted-text);
   background-color: var(--color-prettylights-syntax-markup-deleted-bg);
 }
+.pdf-crop {
+  display: inline-block;
+  padding: 0;
+  margin: 0;
+  line-height: 0;
+}
+
+.pdf-crop canvas {
+  display: block;
+  border-radius: 15px;
+  max-width: 100%;
+  transition: all 0.3s ease-in-out;
+  transform: scale(0.95)
+}
+
+.pdf-crop canvas:hover {
+  transform: scale(1.0);
+}
+
+.pdf-crop canvas[data-color="note"] {
+  border: 2px solid #f4c430;
+}
+.pdf-crop canvas[data-color="important"] {
+  border: 2px solid #FF00FF;
+}
+@keyframes color-cycle {
+    0% { border-color: red; }
+    25% { border-color: orange; }
+    50% { border-color: yellow; }
+    75% { border-color: green; }
+    100% { border-color: red; }
+}
+.pdf-crop[data-color="crazy"] canvas {
+    border: 4px solid;
+    transform: rotate(0deg);
+    border-color: #ff00ff;
+    animation: color-cycle 3s infinite linear;
+}
+.pdf-crop[data-color="crazy"] canvas:hover {
+    transform: rotate(360deg);
+}
